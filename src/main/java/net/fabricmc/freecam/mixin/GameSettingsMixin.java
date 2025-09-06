@@ -17,9 +17,10 @@ import java.util.Arrays;
 public abstract class GameSettingsMixin implements GameSettingsAccessor {
     @Shadow public KeyBinding[] keyBindings;
     @Unique
-    public KeyBinding keyBindingToggleGhost = new KeyBinding("key.toggleFreeCam.open", Keyboard.KEY_F6);
+    public KeyBinding keyBindingToggleGhost = new KeyBinding("key.toggleFreeCam", Keyboard.KEY_F6);
 
-    @Inject(method = "<init>(Lnet/minecraft/src/Minecraft;Ljava/io/File;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/src/Minecraft;Ljava/io/File;)V", at = @At(value = "FIELD",
+            target = "Lnet/minecraft/src/GameSettings;mc:Lnet/minecraft/src/Minecraft;"))
     public void initKeybindings(CallbackInfo ci) {
         this.keyBindings = Arrays.copyOf(this.keyBindings, keyBindings.length + 1);
         keyBindings[keyBindings.length - 1] = this.keyBindingToggleGhost;
