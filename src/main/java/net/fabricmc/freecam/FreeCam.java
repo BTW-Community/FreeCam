@@ -8,6 +8,7 @@ public class FreeCam implements ModInitializer {
 	public static boolean allowFreeCam = false;
 	public static MouseHelper mouseHelper;
 	public static MovementInput movementInput;
+	public static float speed = 0.5F;
 	public static boolean isFreeCam;
 	@Override
 	public void onInitialize() {

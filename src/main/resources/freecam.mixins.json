@@ -3,13 +3,16 @@
   "minVersion": "0.8",
   "package": "net.fabricmc.freecam.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
+  "client": [
     "ClientPlayerMixin",
-    "EntityRendererMixin",
-    "GameSettingsMixin",
     "GuiAchievementMixin",
     "MinecraftMixin",
-    "NetClientHandlerMixin",
+    "EntityClientPlayerMPMixin",
+    "NetClientHandlerMixin"
+  ],
+  "mixins": [
+    "EntityRendererMixin",
+    "GameSettingsMixin",
     "RenderGlobalMixin"
   ],
   "injectors": {

@@ -22,17 +22,24 @@ public class EntityRendererMixin implements IGhost {
     @Unique
     private float motionZ;
     @Unique
+    private float prevMotionX;
+    @Unique
+    private float prevMotionY;
+    @Unique
+    private float prevMotionZ;
+    @Unique
     private float rotationYaw = 0;
     @Unique
     private float rotationPitch = 0;
     @Unique
-    private float playerRotationYaw = 0;
-    @Unique
-    private float playerRotationPitch = 0;
-    @Unique
     private float prevRotationYaw;
     @Unique
     private float prevRotationPitch;
+
+    @Inject(method = "updateCameraAndRender", at = @At("HEAD"))
+    private void injectZoomCamera(float par1, CallbackInfo ci) {
+
+    }
 
     @Redirect(method = "updateCameraAndRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/src/EntityClientPlayerMP;setAngles(FF)V"))
     public void setAngles(EntityClientPlayerMP entityClientPlayerMP, float par1, float par2) {
@@ -58,26 +65,26 @@ public class EntityRendererMixin implements IGhost {
     public void setCameraPos(float par1, CallbackInfo ci) {
         if (!FreeCam.isFreeCam) return;
 
-        if (FreeCam.movementInput.sneak) {
-            this.motionY += 0.05F;
-        }
-        if (FreeCam.movementInput.jump) {
-            this.motionY -= 0.05F;
-        }
-
-        float moveForward = FreeCam.movementInput.moveForward;
-        float moveStrafe = FreeCam.movementInput.moveStrafe;
-        float var4 = moveForward * moveForward + moveStrafe * moveStrafe;
-        if (var4 >= 1.0E-4f) {
-            if ((var4 = MathHelper.sqrt_float(var4)) < 1.0f) {
-                var4 = 1.0f;
-            }
-            var4 = 0.05f / var4;
-            float var5 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0f);
-            float var6 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0f);
-            this.motionX += (moveForward *= var4) * -var6 + (moveStrafe *= var4) * var5;
-            this.motionZ += moveStrafe * var6 + moveForward * var5;
-        }
+//        if (FreeCam.movementInput.sneak) {
+//            this.motionY += 0.5F;
+//        }
+//        if (FreeCam.movementInput.jump) {
+//            this.motionY -= 0.5F;
+//        }
+//
+//        float moveForward = FreeCam.movementInput.moveForward;
+//        float moveStrafe = FreeCam.movementInput.moveStrafe;
+//        float var4 = moveForward * moveForward + moveStrafe * moveStrafe;
+//        if (var4 >= 1.0E-4f) {
+//            if ((var4 = MathHelper.sqrt_float(var4)) < 1.0f) {
+//                var4 = 1.0f;
+//            }
+//            var4 = 0.5f / var4;
+//            float var5 = MathHelper.cos(this.rotationYaw * (float) Math.PI / 180.0f);
+//            float var6 = MathHelper.sin(this.rotationYaw * (float) Math.PI / 180.0f);
+//            this.motionX += (moveForward *= var4) * -var6 + (moveStrafe *= var4) * var5;
+//            this.motionZ += moveStrafe * var6 + moveForward * var5;
+//        }
 
         float var5 = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * par1;
         float var6 = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * par1;
@@ -86,7 +93,11 @@ public class EntityRendererMixin implements IGhost {
         GL11.glRotatef(var6, MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0f),
                 0, MathHelper.sin(this.rotationYaw * (float) Math.PI / 180.0f));
 
-        GL11.glTranslatef(motionX , motionY, motionZ);
+        this.prevMotionX = this.prevMotionX + (this.motionX - this.prevMotionX) * par1;
+        this.prevMotionY = this.prevMotionY + (this.motionY - this.prevMotionY) * par1;
+        this.prevMotionZ = this.prevMotionZ + (this.motionZ - this.prevMotionZ) * par1;
+
+        GL11.glTranslatef(prevMotionX , prevMotionY, prevMotionZ);
 
         this.prevRotationYaw = rotationYaw;
         this.prevRotationPitch = rotationPitch;
@@ -122,11 +133,30 @@ public class EntityRendererMixin implements IGhost {
         this.motionX = x;
         this.motionY = y;
         this.motionZ = z;
+        this.prevMotionX = x;
+        this.prevMotionY = y;
+        this.prevMotionZ = z;
     }
 
     @Override
     public void mITE_Neodymium$setRotation(float rotationYaw, float rotationPitch) {
         this.rotationYaw = rotationYaw;
         this.rotationPitch = rotationPitch;
+    }
+
+    @Override
+    public float mITE_Neodymium$getRotationYaw() {
+        return this.rotationYaw;
+    }
+
+    @Override
+    public void mITE_Neodymium$addPosition(int id, float xyz) {
+        if (id == 0) {
+            this.motionX += xyz;
+        } else if (id == 1) {
+            this.motionY += xyz;
+        } else if (id == 2) {
+            this.motionZ += xyz;
+        }
     }
 }
