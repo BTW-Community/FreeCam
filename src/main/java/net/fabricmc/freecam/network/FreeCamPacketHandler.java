@@ -1,6 +1,6 @@
 package net.fabricmc.freecam.network;
 
-import btw.network.packet.handler.CustomPacketHandler;
+import api.network.CustomPacketHandler;
 import net.fabricmc.freecam.FreeCam;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.NetServerHandler;

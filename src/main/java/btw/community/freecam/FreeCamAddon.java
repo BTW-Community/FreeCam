@@ -1,7 +1,8 @@
 package btw.community.freecam;
 
-import btw.AddonHandler;
-import btw.BTWAddon;
+import api.AddonHandler;
+import api.BTWAddon;
+import api.config.AddonConfig;
 import net.fabricmc.freecam.network.FreeCamPacketHandler;
 import net.minecraft.src.EntityPlayerMP;
 import net.minecraft.src.NetServerHandler;
@@ -19,11 +20,6 @@ public class FreeCamAddon extends BTWAddon {
     }
 
     @Override
-    public void preInitialize() {
-        registerConfigProperties();
-    }
-
-    @Override
     public void initialize() {
         AddonHandler.logMessage(this.getName() + " Version " + this.getVersionString() + " Initializing...");
         instance.registerPacketHandler(CUSTOM_FREE_CAM_PACKET, new FreeCamPacketHandler());
@@ -34,12 +30,13 @@ public class FreeCamAddon extends BTWAddon {
         serverHandler.sendPacket(new Packet250CustomPayload(CUSTOM_FREE_CAM_PACKET, new byte[]{(byte) (allowFreeCam? 1: 0)}));
     }
 
-    private void registerConfigProperties() {
-        this.registerProperty("allowFreeCam", "True", "Allow clients to toggle free cameras");
+    @Override
+    public void registerConfigProperties(AddonConfig config) {
+        config.registerBoolean("allowFreeCam", true, "Allow clients to toggle free cameras");
     }
 
     @Override
-    public void handleConfigProperties(Map<String, String> propertyValues) {
-        allowFreeCam = Boolean.parseBoolean(propertyValues.get("allowFreeCam"));
+    public void handleConfigProperties(AddonConfig config) {
+        allowFreeCam = config.getBoolean("allowFreeCam");
     }
 }
